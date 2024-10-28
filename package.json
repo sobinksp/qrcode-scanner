@@ -1,0 +1,21 @@
+{
+  "name": "test-qrcode-scanner",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "image-js": "^0.35.6",
+    "jimp": "^1.6.0",
+    "jsqr": "^1.4.0",
+    "jsqr-es6": "^1.4.0-1",
+    "node-fetch": "^2.7.0",
+    "qrcode-decoder": "^0.3.4",
+    "sharp": "^0.33.5"
+  }
+}
