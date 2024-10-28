@@ -3,15 +3,15 @@ const jsQR = require("jsqr");
 const fetch = require("node-fetch");
 
 const main = async () => {
-  // open a file called "lenna.png"
-  const imageUrl =
-    "https://s3easyrice.cloudhm.io/inference-raw-image-dev/0001/24102024181127.png";
-  // 0001/24102024180312.png
-  const response = await fetch(imageUrl);
-  const buffer = await response.arrayBuffer();
-  let image = await Image.load(Buffer.from(buffer)); // Load the image from buffer
+  // const imageUrl =
+  //   "https://s3easyrice.cloudhm.io/inference-raw-image-dev/0001/24102024181127.png";
+  // // 0001/24102024180312.png
+  // const response = await fetch(imageUrl);
+  // const buffer = await response.arrayBuffer();
+  // let image = await Image.load(Buffer.from(buffer));
   // let image = await Image.load("SCID-B1.0-N018_SC3190.png");
-  // let image = await Image.load("scanned_image_01.png");
+  const imagePath = "";
+  let image = await Image.load(imagePath);
   image = image.rgba8();
 
   // const sharpImage = await sharp("scanned_image_01.png").metadata();
