@@ -1,5 +1,6 @@
 const { Image } = require("image-js");
 const jsQR = require("jsqr");
+const fs = require("fs");
 const {
   MultiFormatReader,
   BarcodeFormat,
@@ -10,47 +11,6 @@ const {
   NotFoundException,
 } = require("@zxing/library");
 
-const main = async () => {
-  // const imageUrl =
-  //   "https://s3easyrice.cloudhm.io/inference-raw-image-dev/0001/24102024181127.png";
-  // // 0001/24102024180312.png
-  // const response = await fetch(imageUrl);
-  // const buffer = await response.arrayBuffer();
-  // let image = await Image.load(Buffer.from(buffer));
-  let image = await Image.load(
-    "CalibrationX-Rite _plateMFG081024_EXP081124_SNN003_QR_SCID-B1.N057_SC3197_20241028_0001.png"
-  );
-  image = image.rgba8();
-
-  const xWidth = 400;
-  const yHeight = 375;
-  const cropWidth = 300;
-  const cropHeight = 350;
-
-  // const xWidth = 400;
-  // const yHeight = 385;
-  // const cropWidth = 280;
-  // const cropHeight = 285;
-  const x = image.width - xWidth;
-  const y = image.height - yHeight;
-
-  let cropImage = image.crop({
-    x: x,
-    y: y,
-    width: cropWidth,
-    height: cropHeight,
-  });
-  // cropImage = cropImage.grey();
-  // cropImage = cropImage.rgba8();
-
-  const decodedQR = jsQR(cropImage.data, cropImage.width, cropImage.height);
-  console.log("decoded: ", decodedQR?.data);
-
-  const buffer = Buffer.from(cropImage.data);
-
-  await cropImage.save("crop_image_29.png");
-};
-
 const formats = [BarcodeFormat.QR_CODE];
 const hints = new Map();
 
@@ -60,10 +20,28 @@ hints.set(DecodeHintType.TRY_HARDER, true);
 const reader = new MultiFormatReader();
 reader.setHints(hints);
 
-async function zxing() {
-  let image = await Image.load(
-    "CalibrationX-Rite _plateMFG081024_EXP081124_SNN003_QR_SCID-B1.N074_SC3193_20241028_0001.png"
-  );
+async function main() {
+  const imageList = getFilesName("images");
+  const maxFileNameLength = Math.max(...imageList.map((file) => file.length));
+  for (const file of imageList) {
+    try {
+      const qrcode = await zxing(`images/${file}`);
+      console.log(
+        `File name: ${file.padEnd(maxFileNameLength)} | Decoded QR: ${qrcode}`
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+}
+
+function getFilesName(dir) {
+  const fileList = fs.readdirSync(dir);
+  return fileList;
+}
+async function zxing(fileName) {
+  let image = await Image.load(fileName);
+
   image = image.rgba8();
   const xWidth = 400;
   const yHeight = 400;
@@ -78,8 +56,6 @@ async function zxing() {
     width: cropWidth,
     height: cropHeight,
   });
-
-  await cropImage.save("crop_image_zxing.png");
 
   const len = cropImage.width * cropImage.height;
   const luminancesUint8Array = new Uint8ClampedArray(len);
@@ -103,11 +79,16 @@ async function zxing() {
 
   try {
     const decoded = reader.decode(binaryBitmap);
-    // if (!decoded || !decoded.text) return false;
-    console.log(decoded?.text);
+
+    const name = fileName.split("/")[0];
+    if (!decoded?.text) {
+      console.log(`can't decode file: ${name}`);
+      await cropImage.save(`cropped_error_${name}`);
+    }
+    return decoded?.text;
   } catch (err) {
-    console.log(err);
+    throw err;
   }
 }
-// main();
-zxing();
+
+main();
