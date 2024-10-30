@@ -1,1 +1,8 @@
-node_modules
+# Ignore everything
+*
+
+# Except the following files
+!main.js
+!package-lock.json
+!package.json
+!gitignore
